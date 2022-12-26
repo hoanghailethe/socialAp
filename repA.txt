@@ -1,0 +1,27 @@
+1. Firestore ac
+2. install firebase cmd window - os
+	npm install -g firebase-tools
+
+3. create app : firebase login - firebase init
+	firebase deploy
+	test endpoint
+		
+4. create a DB - try collection
+
+5. use Express to format RES: 27:57
+	explaning purpoes of uses
+	install exp: npm install --save express
+		28:44
+	
+
+6. push to git.
+	https://docs.github.com/en/get-started/importing-your-projects-to-github/importing-source-code-to-github/adding-locally-hosted-code-to-github
+
+==1225==
+1. express loading 
+2. FB authentication config
+3. signup route
+4. create custome user DB - return a token for later authentication
+4. validation = check userId existed
+
+
