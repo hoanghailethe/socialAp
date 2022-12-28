@@ -3,6 +3,8 @@
 const functions = require("firebase-functions");
 const admin = require('firebase-admin');
 const { getAuth, createUserWithEmailAndPassword } = require("firebase/auth");
+import { red } from 'colorette';
+import { _objectWithOptions } from 'firebase-functions/v1/storage';
 import { initializeApp } from 'firebase/app';
 
 // // Create and deploy your first functions
@@ -32,7 +34,7 @@ firebase.initializeApp(fConfig);
 //suggest : extend npm intellisense ,   npm i firebase firebase-tools --save
 
 const db = admin.firestore() ;
-const auth = getAuth() ;
+// const auth = getAuth() ;
 
 // create post route
 app.get('post', (req, res) => {
@@ -47,10 +49,35 @@ app.get('post', (req, res) => {
     .catch((err) => console.error(err)) ;
 }) ;
 
-app.post('post', (req, res) => {
+// auth token
+const authMiddleWare = (req, res, next ) => {
+    let idToken
+    if (!req.headers.authorization.token || !req.headers.authorization.token.startWith('Bearer ') ) {
+        return res.status(403).json({error: "Not logged in"})
+    }
+
+    idToken =req.headers.authorization.token.split('Bearer ')[1]
+
+    firebase.auth().verifyIdToken(idToken)
+        .then( decodeToken => {
+            console.log(decodeToken) ; 
+            req.user = decodeToken ;
+            return db.collection('user').where("userId", "==", req.user.uid).limit(1).get()
+        })
+        .then( data => {
+            req.handle = data.doc(0).data().handle ;
+            return next()
+        })
+        .catch (err => {
+            console.error(err) ;
+            return res.status(403).json ({message : "Error when validating token " + err.code})
+        })
+}
+
+app.post('post', authMiddleWare, (req, res) => {
     let newPost = {
         body: req.body.body,
-        handle: req.body.handle, 
+        handle: req.handle, 
         createdAt : new Date().toISOString
     }
 
@@ -100,6 +127,22 @@ app.post('post', (req, res) => {
 //     })
 // })
 
+//helper funct to validate field
+
+const isEmpty = (str) => {
+    (!str || str.length === 0 );
+} 
+
+const isEmail = (str) => {
+    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(str))
+  {
+    return (true)
+  }
+    // alert("You have entered an invalid email address!")
+    return (false)
+}
+
+
 //sign up route
 app.post('/signUp', (req,res) => {
     let newUser = {
@@ -107,6 +150,24 @@ app.post('/signUp', (req,res) => {
         password : req.body.password,
         confirmPassword : req.body.confirmPassword,
         handle: req.body.handle,
+    }
+    let errors = {}
+    //validate input field: 
+    if(isEmpty(newUser.handle)) {
+        errors.push("handle must not be empty")
+    } 
+    if (!isEmail(newUser.email)) {
+        errors.push("Enter valid email")
+    } 
+    if (isEmpty(newUser.password)) {
+        errors.push("password cannot be empty")
+    } 
+    if (newUser.confirmPassword !== newUser.password) {
+        errors.push("password not match");
+    }
+
+    if(Object.keys(errors).length > 0) {
+        return res.status(401).json(errors) ;
     }
 
     //check existed handler
@@ -155,5 +216,30 @@ app.post('/signUp', (req,res) => {
 //         console.error(err);
 //     })
 // })
+
+//logon route
+app.post('/login', (req, res) => {
+    const user = {
+        email : req.body.email ,
+        password : red.body.password
+    }
+
+    let errors = {}
+
+    firebase.auth().getUserWithEmailAndPassword(user.email, user.password) 
+        .then(data => {
+            return data.user.getIdToken ;
+        })
+        .then( token => {
+            return res.json(token) ;
+        })
+        .catch(err => {
+            console.error(err) ;
+            if(err.code === 'auth/wrong-password') {
+                return res.status(403).json({general : "Wrong credential, please retry"})
+            }
+            return res.status(500).json({error: err.code});
+        })
+})
 
 exports.api = functions.region('asia').https.onRequest(app);
