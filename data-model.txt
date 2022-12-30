@@ -1,0 +1,28 @@
+{
+    "user" : "123"
+}
+// ? Thuat toan hien thi bai post ntn ? de update nhung post moi nhat dc thay doi ? //
+
+
+// model DB user
+User data profile = [
+    User :  {
+        name ,
+        img ava ,
+        email,
+        intro/stt,
+        uid / handle,
+
+        phone , 
+        address 
+    },
+
+    liked : {postId}
+]
+
+
+//DB COMMENT
+
+// DB LIKE:
+
+//image? 

@@ -77,3 +77,37 @@ exports.logIn = (req, res) => {
             return res.status(500).json({error: err.code});
         })
 }
+
+const uploadImage = require ('../utils/uploadImage') ;
+exports.editProfile = (req,res) => {
+    let userInfo = {
+        email : req.body.email ,
+        phone : req.body.phone ,
+        img: 'blank holder img URL',
+        status : req.body.status ,
+        handle: req.body.handle,
+    }
+
+    // check if there a file img upload
+
+    // start Uploadfile  - if success return img url 
+    let {isSuccess , imgUrl } = uploadImage( req ) ;
+
+    if (isSuccess) {
+        userInfo.img = imgUrl ;
+    }
+
+    db.doc(`user/${userInfo.handle}`).limit(1).get()
+        .then ( doc => {
+            if (doc.exists) {
+                // pass 
+            } else {    
+                return res.status(404).json({message : "user not exist"})
+            }
+        } )
+        .then(
+            //update user in db
+            
+        )
+
+}
