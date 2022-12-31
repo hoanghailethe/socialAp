@@ -36,7 +36,8 @@ exports.signUpUser = (req,res) => {
             handle:newUser.handle , 
             email: newUser.email, 
             createdAt: new Date().toISOString ,
-            userId
+            userId,
+            imgUrl : "defauult IMG link"
         };
         //save to database
         return db.doc(`user/${newUser.handle}`).set(userCredential) ; 
@@ -79,6 +80,7 @@ exports.logIn = (req, res) => {
 }
 
 const uploadImage = require ('../utils/uploadImage') ;
+const config = require('../firebase/config')
 exports.editProfile = (req,res) => {
     let userInfo = {
         email : req.body.email ,
@@ -107,7 +109,60 @@ exports.editProfile = (req,res) => {
         } )
         .then(
             //update user in db
-            
+
         )
 
+}
+
+exports.uploadImage = (req,res) => {
+    const BusBoy = require('busboy') ;
+    const path = require('path')
+    const os = require('os')
+    const fs = require('fs')
+
+    const busboy = new BusBoy( {headers : req.headers} ) ;
+
+    let imageFileName ;
+    let imgToBeUploaded
+    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+        // check type file is img 
+        if(mimetype !== 'image/jpeg' && mimetype !== 'image/png') {
+            return res.status(400).json({error : "image only"})
+        }
+
+        //my.img.png
+        const imageExtension = filename.split('.')[ filename.split('.').length - 1 ] ;
+        //123412.png
+        imageFileName = `${Math.round(Math.random() * 10000000 )}.${imageExtension}` ;
+        
+        const filePath = path.join(os.tmpdir(), imageFileName) ;
+        imgToBeUploaded = { filePath , mimetype } ;
+
+        file.pipe( fs.createWriteStream (filePath)) ;
+    })
+
+    busboy.on( 'finish' , () => {
+        db.admin.storage().bucket.upload(imgToBeUploaded.fieldPath, {
+            resumable: false , 
+            metadata : {
+                metadata: {
+                    contentType: imgToBeUploaded.mimetype
+                }
+            }
+        })
+        .then(() => {
+            const imgUrl = `https://firebasestorage.googleapi.com/v0/${config.storageBucket}/o/${imageFileName}?alt=media`
+            return db.doc(`users/${req.user.handle}`)
+                .update({imgUrl : imgUrl}) ; 
+        })
+        .then(() => {
+            return res.json({
+                message : 'img uploaded successfully'
+            })
+        })
+        .catch(err => {
+
+        })
+    }) ;
+    busboy.end(req.rawBody) ;
 }

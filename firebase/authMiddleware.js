@@ -1,4 +1,4 @@
-const firebase = require('./firebase') ;
+const {admin , db } = require('./admin') ;
 
 module.exports = (req, res, next ) => {
     let idToken
@@ -8,13 +8,19 @@ module.exports = (req, res, next ) => {
 
     idToken =req.headers.authorization.token.split('Bearer ')[1]
 
-    firebase.auth().verifyIdToken(idToken)
+    admin.auth().verifyIdToken(idToken)
         .then( decodeToken => {
             console.log(decodeToken) ; 
             req.user = decodeToken ;
-            return db.collection('user').where("userId", "==", req.user.uid).limit(1).get()
+            // get USER from DB
+            return db
+                .collection('user')
+                .where("userId", "==", req.user.uid)
+                .limit(1)
+                .get()
         })
         .then( data => {
+            // change the request (add handle data to it)  make sure it has handle
             req.handle = data.doc(0).data().handle ;
             return next()
         })

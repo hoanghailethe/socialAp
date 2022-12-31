@@ -41,9 +41,18 @@
 3. add a post
 4. 'Liked' route way to LIKE a POST or a Comment 
 
-== DB design : 
+-- 30/12/22
+After design first time and set template
+1 st trial
+2. learn follw on this commit - START POINT from : IMAGE upload 1h48:47
+
+
+== DB desig;n : 
 USer - POST - LIKE - COMMENT
 
 -- NEXT: XALO WHats app cloning
 
-
+--311222
+1. finish uploadImage route done at 
+2. 2h13:34  Add and get USER profile Detail : 
+	
