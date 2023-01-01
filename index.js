@@ -3,9 +3,9 @@ const functions = require("firebase-functions");
 const express = require('express');
 const app = express() ;
 
-const { getAllPosts, createOnePost } = require("./handler/post") ;
+const { getAllPosts, createOnePost , getPostByPostId , commentOnPost} = require("./handler/post") ;
 const {authMiddleWare} = require('./firebase/authMiddleware'); 
-const {signUpUser , logIn , editProfile , resetPassword , uploadImage} = require('./handler/user') ;
+const {signUpUser , logIn , editProfile , resetPassword , uploadImage, addUserDetail, getAuthenticatedUser} = require('./handler/user') ;
 const {likePost, dislikePost}=  require('./handler/like') ;
 const {addComment, deleteComment}=  require('./handler/comment') ;
 
@@ -13,12 +13,22 @@ const {addComment, deleteComment}=  require('./handler/comment') ;
 app.get('post', getAllPosts ) ; //get top comment - get more comment //
 app.post('post', authMiddleWare, createOnePost);
     //delete post -> delete comment and like
+//TODO: get a post by Id
+app.get('/post/:postId' , getPostByPostId ) ;
+//delete
+//like Post
+//unlike post
+//comment on a post
+app.post('/post/:postId/comment' , authMiddleWare, commentOnPost) ;
+
 
 //USER ROUTE: signup + log in + edit / update info + resetPassword
 app.post('/signUp', signUpUser)
 app.post('/login', logIn)
-app.post('/user/image',authMiddleWare , uploadImage)
-app.post('/profile', authMiddleWare, editProfile)  ; // note : Image Avartar ?? question : what about photo facebook or lib , video
+app.post('/user/image',authMiddleWare , uploadImage) ;
+app.post('/user/image',authMiddleWare , addUserDetail) ;
+app.post('/user/image',authMiddleWare , getAuthenticatedUser) ;
+// app.post('/profile', authMiddleWare, editProfile)  ; // note : Image Avartar ?? question : what about photo facebook or lib , video
 // app.post('/profile', authMiddleWare, resetPassword) ;
 
 // LIKE routes

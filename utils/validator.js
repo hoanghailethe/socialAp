@@ -48,4 +48,14 @@ const validateLogInUser = (user) => {
     return {isValid, errors}
 }
 
-module.exports = {validateNewUser, validateLogInUser} ;
+const reduceUserDetail = (data) => {
+    let UserDetail = {}
+
+    if (!isEmpty(data.bio.trim())) UserDetail.bio = data.bio ;
+    if (!isEmpty(data.website.trim())) UserDetail.website = data.website ;
+    if (!isEmpty(data.location.trim())) UserDetail.location = data.location ;
+
+    return UserDetail ;
+}
+
+module.exports = {validateNewUser, validateLogInUser , reduceUserDetail} ;

@@ -85,7 +85,7 @@ exports.editProfile = (req,res) => {
     let userInfo = {
         email : req.body.email ,
         phone : req.body.phone ,
-        img: 'blank holder img URL',
+        imgUrl: 'blank holder img URL',
         status : req.body.status ,
         handle: req.body.handle,
     }
@@ -96,7 +96,7 @@ exports.editProfile = (req,res) => {
     let {isSuccess , imgUrl } = uploadImage( req ) ;
 
     if (isSuccess) {
-        userInfo.img = imgUrl ;
+        userInfo.imgUrl = imgUrl ;
     }
 
     db.doc(`user/${userInfo.handle}`).limit(1).get()
@@ -165,4 +165,42 @@ exports.uploadImage = (req,res) => {
         })
     }) ;
     busboy.end(req.rawBody) ;
+}
+
+//add user detail
+exports.addUserDetail = (req, res) => {
+    let userDetail = reduceUserDetail(req.body) ;
+
+    db.doc(`users/${req.user.handle}`).update(userDetail) //will only update the field that have the information, other stay the same if dont have
+        .then( () => {
+            return res.json( { message : "Information added successfully" }) ;
+        } )
+        .catch( err => {
+            return res.status(500).json({err : "Can't update user"}) ;
+        })
+}
+
+// fetch info of logged in user = > FE will save this to REDUX for later
+exports.getAuthenticatedUser = (req, res) => {
+    let userData = {} ; // credentials and Likes
+    
+    db.doc(`{users/${req.user.handle}}`).get()
+        .then( doc => {
+            if (doc.exists) {
+                userData.credentials= doc.data() ;
+                return db.collection('likes')
+                    .where('userHandle', '==' , req.user.handle)
+                    .get();
+            }
+        })
+        .then((data) => {
+            userData.likes = [] ;
+            data.forEach( doc => {
+                userData.likes.push(doc.data())
+            }) ;
+            return res.json(userData) ;
+        })
+        .catch (err=> {
+            res.status(500).json({err: err.code}) ;
+        })
 }

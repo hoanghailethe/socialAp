@@ -21,7 +21,9 @@ module.exports = (req, res, next ) => {
         })
         .then( data => {
             // change the request (add handle data to it)  make sure it has handle
-            req.handle = data.doc(0).data().handle ;
+            req.handle = data.docs[0].data().handle ;
+            //add userImg link url here too for Comment access quick
+            req.user.imageUrl = data.docs[0].data().imgUrl ; 
             return next()
         })
         .catch (err => {
