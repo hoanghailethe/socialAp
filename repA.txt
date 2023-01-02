@@ -62,4 +62,4 @@ Add and get User Detail
 2. 2|33 15 getcomment and comment post 
 3. comment on a post: 2 46 48
 
-4. LIKE, unlike delete a POST : 2: 56 :40
+4. LIKE, unlike  && delete a POST : 2: 56 :40

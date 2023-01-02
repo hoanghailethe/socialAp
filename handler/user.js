@@ -184,7 +184,7 @@ exports.addUserDetail = (req, res) => {
 exports.getAuthenticatedUser = (req, res) => {
     let userData = {} ; // credentials and Likes
     
-    db.doc(`{users/${req.user.handle}}`).get()
+    db.doc(`users/${req.user.handle}`).get()
         .then( doc => {
             if (doc.exists) {
                 userData.credentials= doc.data() ;

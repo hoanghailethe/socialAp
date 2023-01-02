@@ -3,7 +3,7 @@ const functions = require("firebase-functions");
 const express = require('express');
 const app = express() ;
 
-const { getAllPosts, createOnePost , getPostByPostId , commentOnPost} = require("./handler/post") ;
+const { getAllPosts, createOnePost , getPostByPostId , commentOnPost, deletePostById} = require("./handler/post") ;
 const {authMiddleWare} = require('./firebase/authMiddleware'); 
 const {signUpUser , logIn , editProfile , resetPassword , uploadImage, addUserDetail, getAuthenticatedUser} = require('./handler/user') ;
 const {likePost, dislikePost}=  require('./handler/like') ;
@@ -15,11 +15,7 @@ app.post('post', authMiddleWare, createOnePost);
     //delete post -> delete comment and like
 //TODO: get a post by Id
 app.get('/post/:postId' , getPostByPostId ) ;
-//delete
-//like Post
-//unlike post
-//comment on a post
-app.post('/post/:postId/comment' , authMiddleWare, commentOnPost) ;
+app.delete('/post/:postId', authMiddleWare, deletePostById) ;
 
 
 //USER ROUTE: signup + log in + edit / update info + resetPassword
@@ -32,10 +28,11 @@ app.post('/user/image',authMiddleWare , getAuthenticatedUser) ;
 // app.post('/profile', authMiddleWare, resetPassword) ;
 
 // LIKE routes
-// app.post('/like/postId', authMiddleWare , likePost) ;
-// app.post('/dislike/postId',  authMiddleWare , dislikePost) ;
+app.post('/like/:postId', authMiddleWare , likePost) ;
+app.post('/dislike/:postId',  authMiddleWare , dislikePost) ;
 
 //COMMENT routes 
+app.post('/post/:postId/comment' , authMiddleWare, commentOnPost) ;
 // app.post('/post/comment', authMiddleWare , addComment) ;
 // app.post('/post/deleteComment', authMiddleWare , deleteComment) ;
 

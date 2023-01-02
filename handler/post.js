@@ -16,13 +16,18 @@ exports.createOnePost = (req, res) => {
         let newPost = {
             body: req.body.body,
             handle: req.handle, 
-            createdAt : new Date().toISOString
+            createdAt : new Date().toISOString , 
+            //add user IMG here too
+            userImageUrl : req.user.imageUrl, 
+            likeCount: 0,
+            commentCount : 0
         }
     
         db.collection('Post')
         .add(newPost)
         .then((doc) => {
-            res.json({message : `Post with id ${doc.id} created successfully`})
+            newPost.postId = doc.id ;
+            res.json({message : `Post with id ${doc.id} created successfully` , newPost})
         })
         .catch((err) => {
             res.status(500).json({message: 'sth went wrong'})
@@ -63,34 +68,37 @@ exports.getPostByPostId = (req, res ) => {
 }
 
 
-//comment on a post:
-exports.commentOnPost = ( req, res ) => {
 
-    if (req.body.body.trim() === '') return res.status(400).json({error: "Must not be empty"}) ;
-
-    const newComment = {
-        postId : req.params.postId ,
-        userId : req.user.handle ,
-        content : req.body.body,
-        createdAt : new Date().toISOString,
-        
-        //add user IMG here too
-        userimageUrl : req.user.imageUrl 
-    } ;
-
-    // First check if the post still existed first
-    db.doc(`posts/${req.params.postId}`).get()
-        .then( doc =>{
-            if (doc.exists) {
-                return db.collection('comments').add(newComment) ;
+//Delete a post
+exports.deletePostById = (req, res) => {
+    const postDoc = db.doc(`post/${req.params.postId}`) ;
+    postDoc.get()
+        .then(doc =>{
+            if(!doc.exists) {
+                res.status(400).json({message: "Post not exist"})
+            } else if (req.user.handle !== doc.data().userId ) {
+                res.status(400).json({error: "Unauthorized"})
+            } else {
+                postDoc.delete() ;
             }
         })
-        .then(()=>{
-            res.json({message: "Comment successfully", comment : newComment})
+        //Delete comment of the post
+        .then(() => {
+            // db.collection('comments')
+            // .where('postId' ,'==' , req.params.postId)
+            // .get().delete() ; 
+        })
+        // DELETE like
+        .then( () =>{
+            // db.collection('likes')
+            // .where('postId' ,'==' , req.params.postId)
+            // .get().delete() ;
+        })
+        .then(() => {
+            res.json({message: "post deleted successfully"}); 
         })
         .catch((err) => {
-            res.status(500).json({message: 'Sth went wrong'})
+            res.status(500).json({message: 'Sth went wrong while deleting post'})
             console.error(err)
-        });
-        
+        })         
 }
