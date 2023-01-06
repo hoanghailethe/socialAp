@@ -68,3 +68,8 @@ Add and get User Detail
 1. Create and get notification : 3h 2543
 2. Mark Noti as READ by batch
 3. get anyUSER detail information
+
+--6/1/23
+1. 2 triggers: 
+	- change userImgUrl of all the POST when user change img
+	

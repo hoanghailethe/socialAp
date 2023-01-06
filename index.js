@@ -8,7 +8,8 @@ const {authMiddleWare} = require('./firebase/authMiddleware');
 const {signUpUser , logIn , editProfile , resetPassword , uploadImage, addUserDetail, getAuthenticatedUser, getUserDetailByUid } = require('./handler/user') ;
 const {likePost, dislikePost}=  require('./handler/like') ;
 const {addComment, deleteComment}=  require('./handler/comment') ;
-const { createNotificationOnLike, deleteNotificationOnUnlike, createNotificationOnComment , markReadNotification } = require('./handler/notification') ; 
+const { markReadNotification } = require('./handler/notification') ; 
+const {createNotificationOnLike, deleteNotificationOnUnlike, createNotificationOnComment } = require('./triggers/trigger')
 
 // POST routes
 app.get('post', getAllPosts ) ; //get top comment - get more comment //
