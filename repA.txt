@@ -63,3 +63,8 @@ Add and get User Detail
 3. comment on a post: 2 46 48
 
 4. LIKE, unlike  && delete a POST : 2: 56 :40
+
+--2/1
+1. Create and get notification : 3h 2543
+2. Mark Noti as READ by batch
+3. get anyUSER detail information

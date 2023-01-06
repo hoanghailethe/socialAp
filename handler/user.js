@@ -204,3 +204,37 @@ exports.getAuthenticatedUser = (req, res) => {
             res.status(500).json({err: err.code}) ;
         })
 }
+
+//get other user
+exports.getUserDetailByUid = (rq, rs) => {
+    let userData = {} ;
+    db.doc(`users\${rq.params.userId}`).get() 
+        then((doc) => {
+            if (!doc.exists) {
+                return rs.status(400).json({error: "user does not existed"})
+            }
+            userData.user = doc.data() ;
+            
+            //also get POSTs by this user
+            return db.collection('posts')
+                .where('userId', '==' , rq.params.userId)
+                .orderBy('createdAt', 'desc').get()
+        })
+        .then( data => {
+            userData.posts = [] ;
+            data.forEach( (doc => {
+                userData.posts.push({
+                    body : doc.data().body ,
+                    createdAt : doc.data().createdAt ,
+                    userId : doc.data().userId ,
+                    userImage : doc.data().userImage ,
+                    likeCount :doc.data().likeCount ,
+                    commentCount : doc.data().commentCount, 
+                    postId: doc.id 
+                })
+            }))
+        })
+        .catch (err=> {
+            res.status(500).json({err: err.code}) ;
+        })
+}

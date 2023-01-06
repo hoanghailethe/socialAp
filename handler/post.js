@@ -5,7 +5,15 @@ exports.getAllPosts = (req, res) => {
        .then(data => {
            let posts = []
            data.forEach((doc) => {
-               posts.push(doc.data())
+               posts.push({
+                postId : doc.id ,
+                body : doc.data().body ,
+                userImg : doc.data().userImageUrl ,
+                userId : doc.data().userId ,
+                createdAt : doc.data().createdAt ,
+                commentCount : doc.data().commentCount ,
+                likeCount : doc.data().likeCount
+            })
            })
            return res.json(posts);
        })

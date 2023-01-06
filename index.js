@@ -5,9 +5,10 @@ const app = express() ;
 
 const { getAllPosts, createOnePost , getPostByPostId , commentOnPost, deletePostById} = require("./handler/post") ;
 const {authMiddleWare} = require('./firebase/authMiddleware'); 
-const {signUpUser , logIn , editProfile , resetPassword , uploadImage, addUserDetail, getAuthenticatedUser} = require('./handler/user') ;
+const {signUpUser , logIn , editProfile , resetPassword , uploadImage, addUserDetail, getAuthenticatedUser, getUserDetailByUid } = require('./handler/user') ;
 const {likePost, dislikePost}=  require('./handler/like') ;
 const {addComment, deleteComment}=  require('./handler/comment') ;
+const { createNotificationOnLike, deleteNotificationOnUnlike, createNotificationOnComment , markReadNotification } = require('./handler/notification') ; 
 
 // POST routes
 app.get('post', getAllPosts ) ; //get top comment - get more comment //
@@ -26,6 +27,8 @@ app.post('/user/image',authMiddleWare , addUserDetail) ;
 app.post('/user/image',authMiddleWare , getAuthenticatedUser) ;
 // app.post('/profile', authMiddleWare, editProfile)  ; // note : Image Avartar ?? question : what about photo facebook or lib , video
 // app.post('/profile', authMiddleWare, resetPassword) ;
+// Get other User's detail Info
+app.get('/user/:userId', getUserDetailByUid) ;
 
 // LIKE routes
 app.post('/like/:postId', authMiddleWare , likePost) ;
@@ -36,8 +39,15 @@ app.post('/post/:postId/comment' , authMiddleWare, commentOnPost) ;
 // app.post('/post/comment', authMiddleWare , addComment) ;
 // app.post('/post/deleteComment', authMiddleWare , deleteComment) ;
 
-// NOTIFICATION routes 
+// NOTIFICATION routes  
+    //markNotificationRead : 3 44 58
+    //this route only for backend to mark data
+    app.post('/notification' , authMiddleWare , markReadNotification)
+
 // RELATIONSHIP routes
 // LIB PICTUREs / Video ?   -- extension
 
 exports.api = functions.region('asia').https.onRequest(app);
+exports.createNotificationOnLike ; 
+exports.deleteNotificationOnUnlike ;
+exports.createNotificationOnComment ;
