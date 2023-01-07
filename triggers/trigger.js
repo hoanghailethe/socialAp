@@ -59,13 +59,48 @@ exports.changeUserImgInPosts = functions.region('asia')
 
                 return db.document('/posts')
                     .where('userId' ,'==' ,change.before.data().userId).get()
-                    .then((data) => { //data is an array
+                    .then((data) => { //data is an array many pots
                         data.forEach( (doc) => {
                             const post = db.doc(`/posts/${data.id}`).get() ;
                             batch.update(post, {userImg : change.after.data().imgUrl});
                         });
                         return batch.commit();
                     })
-            }
+            } else return true ;
         })
 
+//After Delete a POST : delete comments and like of that post
+exports.onPostDelete = functions.region('asia')
+        .firestore.document('post/{id}')
+        .onDelete((snapshot, context) => {
+            const postId = context.params.id ;
+            const batch = db.batch() ;
+            //delete comments
+            return db.collection('comments')
+                .where('postId' , '==' , postId)
+                .get()
+                .then((cmts) => {
+                    cmts.forEach(cmtdoc => {
+                        batch.delete(db.doc(`comments/${cmtdoc.id}`)) ; 
+                    })
+                    //delete like after
+                    return db.collection('like').where('postId' , '==' ,postId).get()
+                        
+                })
+                .then(like => {
+                    like.forEach(likedoc => {
+                        batch.delete(db.doc(`likes/${likedoc.id}`));
+                    })
+                    //delete notification also
+                    return db.collection('notifications').where("postId" , "==" , postId).get()
+                })
+                .then(notis => {
+                    notis.forEach(notidoc => {
+                        batch.delete(db.doc(`notifications/${notidoc.id}`));
+                    })
+                })
+                .then(()=>{
+                    return batch.commit() ;
+                })
+                .catch(err => console.log(err));
+        })
