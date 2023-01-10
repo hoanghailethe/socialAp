@@ -3,17 +3,17 @@ const functions = require("firebase-functions");
 const express = require('express');
 const app = express() ;
 
-const { getAllPosts, createOnePost , getPostByPostId , commentOnPost, deletePostById} = require("./handler/post") ;
+const { getAllPosts, createOnePost , getPostByPostId , deletePostById} = require("./handler/post") ;
 const {authMiddleWare} = require('./firebase/authMiddleware'); 
 const {signUpUser , logIn , editProfile , resetPassword , uploadImage, addUserDetail, getAuthenticatedUser, getUserDetailByUid } = require('./handler/user') ;
 const {likePost, dislikePost}=  require('./handler/like') ;
-const {addComment, deleteComment}=  require('./handler/comment') ;
+const {commentOnPost, deleteComment}=  require('./handler/comment') ;
 const { markReadNotification } = require('./handler/notification') ; 
 const {createNotificationOnLike, deleteNotificationOnUnlike, createNotificationOnComment } = require('./triggers/trigger')
 
 // POST routes
-app.get('post', getAllPosts ) ; //get top comment - get more comment //
-app.post('post', authMiddleWare, createOnePost);
+app.get('/post', getAllPosts ) ; //get top comment - get more comment //
+app.post('/post', authMiddleWare, createOnePost);
     //delete post -> delete comment and like
 //TODO: get a post by Id
 app.get('/post/:postId' , getPostByPostId ) ;
@@ -37,8 +37,7 @@ app.post('/dislike/:postId',  authMiddleWare , dislikePost) ;
 
 //COMMENT routes 
 app.post('/post/:postId/comment' , authMiddleWare, commentOnPost) ;
-// app.post('/post/comment', authMiddleWare , addComment) ;
-// app.post('/post/deleteComment', authMiddleWare , deleteComment) ;
+app.post('/post/deleteComment/:cmtId', authMiddleWare , deleteComment) ;
 
 // NOTIFICATION routes  
     //markNotificationRead : 3 44 58

@@ -40,3 +40,26 @@ exports.commentOnPost = ( req, res ) => {
         });
         
 }
+
+
+exports.deleteComment = (rq, rs) => {
+    const docRef = db.doc(`/comments/${rq.params.cmtId}`) ;
+    docRef.get()
+        .then((doc) => {
+            if(!doc.exists) {
+                rs.status(400).json({error: "comment not exist"})
+            } else if(rq.user.handle !== doc.data().userId) {
+                rs.status(400).json({error: "Unauthorized"})
+            }
+            docRef.delete() ; 
+        })
+        .then(() => {
+            res.json(`Comment with id ${rq.params.cmtId} deleted successfully`)
+        })
+        .catch(err => {
+            res.status(500).json({message: 'Sth went wrong while deleting comment'})
+            console.error(err)
+        });
+
+
+}
