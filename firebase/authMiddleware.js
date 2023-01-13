@@ -1,6 +1,6 @@
-const {admin , db } = require('./admin') ;
+import { admin, db } from './admin';
 
-module.exports = (req, res, next ) => {
+export default (req, res, next ) => {
     let idToken
     if (!req.headers.authorization.token || !req.headers.authorization.token.startWith('Bearer ') ) {
         return res.status(403).json({error: "Not logged in"})

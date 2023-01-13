@@ -1,6 +1,6 @@
 const firebase = require('../firebase/firebase')
 const db = require('../firebase/admin')
-const { validateNewUser , validateLogInUser } = require('../utils/validator')
+const { validateNewUser , validateLogInUser , reduceUserDetail } = require('../utils/validator')
 
 exports.signUpUser = (req,res) => {
     let newUser = {
@@ -161,7 +161,7 @@ exports.uploadImage = (req,res) => {
             })
         })
         .catch(err => {
-
+            console.error({message: "Upload img fail to server", error : err.code})
         })
     }) ;
     busboy.end(req.rawBody) ;
@@ -208,7 +208,7 @@ exports.getAuthenticatedUser = (req, res) => {
 //get other user
 exports.getUserDetailByUid = (rq, rs) => {
     let userData = {} ;
-    db.doc(`users\${rq.params.userId}`).get() 
+    db.doc(`users/${rq.params.userId}`).get() 
         then((doc) => {
             if (!doc.exists) {
                 return rs.status(400).json({error: "user does not existed"})
